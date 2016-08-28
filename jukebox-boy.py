@@ -1,8 +1,24 @@
 import asyncio
 import discord
 from discord.ext import commands
+import tokens
 
-print("Logging in...")
+bot = commands.Bot(command_prefix='!', description="Jukebox boi!!!!!!!!!!!!!!")
+
+if not discord.opus.is_loaded():
+	discord.opus.load_opus()
+
+print('Logging in...')
+
+@bot.command(pass_context=True)
+async def play(ctx, url):
+	voice = await bot.join_voice_channel(ctx.message.author.voice.voice_channel)
+	player = await voice.create_ytdl_player(url=url)
+	player.start()
+
+@bot.command(pass_context=True)
+async def join(ctx):
+	voice = await bot.join_voice_channel(ctx.message.author.voice.voice_channel)
 
 @bot.event
 async def on_ready():
@@ -12,4 +28,4 @@ async def on_ready():
     print('------------------')
 
 
-bot.run('MTk2NjM2NjMxNjE1MTQzOTM2.ClH-9Q.p4YTlhIm_QPX_wCTXy486Suzrwk')
+bot.run(tokens.key)
