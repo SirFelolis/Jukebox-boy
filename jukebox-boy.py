@@ -24,10 +24,7 @@ async def join_vc_and_play_stream(ctx, *, channel: discord.Channel = None):
     try:
         if channel is None:
             # Tell user they're a retard and need to spesify what channel
-            await bot.say("```xl\nTell me what channel!```")
-
-            # Exit out of the function to make sure we don't do anything stupid like try and join None
-            return
+            channel = ctx.message.author.voice_channel
 
         # Set a voice client object
         voice_client = await bot.join_voice_channel(channel)
@@ -47,12 +44,16 @@ async def join_vc_and_play_stream(ctx, *, channel: discord.Channel = None):
         await bot.say("```xl\nTimed out trying to enter the hood.```")
     except discord.ClientException:
         await bot.say("```xl\nCan't go ditchin' people for sushi.```")
-@bot.command(name="!weeb", pass_context=True)
+@bot.command(name="weeb")
 async def start_weeb_music(ctx):
     # Tune in to weeb radio
     player = voice_client.create_ffmpeg_player("http://listen.moe:9999/stream", headers={"User-agent": user_agent})
     players.update({ctx.message.server.id: player})
     player.start()
+
+@bot.command(name="play")
+async def request_song(url):
+    
 
 @bot.command(name="pause", pass_context=True)
 async def pause_audio_stream(ctx):
