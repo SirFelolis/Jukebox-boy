@@ -6,20 +6,19 @@ import tokens
 if not discord.opus.is_loaded():
 	discord.opus.load_opus()
 
-bot = commands.Bot(command_prefix="!", description="Jukebox boi")
+bot = commands.Bot(command_prefix=commands.when_mentioned_or("!"), description="Jukebox boi")
 
 user_agent = "Insert user agent here"
 
+
+voice_client = None
 players = {}
 default_vol = 100
+queue = []
 
-# @commands.group(pass_context=True)
-# async def musique(ctx):
-#     if ctx.invoked_subcommand is None:
-#        bot.say("Sorry my dude, it's not wednesay")
 
 @bot.command(name="join", pass_context=True)
-async def join_vc_and_play_stream(ctx, *, channel: discord.Channel = None):
+async def join_vc(ctx, *, channel: discord.Channel = None):
     """Joins a channel"""
     try:
         if channel is None:
@@ -36,24 +35,14 @@ async def join_vc_and_play_stream(ctx, *, channel: discord.Channel = None):
 
         player.volume = default_vol / 100
 
-        players.update({ctx.message.server.id: player})
-
         player.start()
+
+        players.update({ctx.message.server.id: player})
         await bot.say("```xl\nJoined {0.channel} to play weeb music```".format(voice_client))
     except asyncio.TimeoutError:
         await bot.say("```xl\nTimed out trying to enter the hood.```")
     except discord.ClientException:
         await bot.say("```xl\nCan't go ditchin' people for sushi.```")
-@bot.command(name="weeb")
-async def start_weeb_music(ctx):
-    # Tune in to weeb radio
-    player = voice_client.create_ffmpeg_player("http://listen.moe:9999/stream", headers={"User-agent": user_agent})
-    players.update({ctx.message.server.id: player})
-    player.start()
-
-@bot.command(name="play")
-async def request_song(url):
-    
 
 @bot.command(name="pause", pass_context=True)
 async def pause_audio_stream(ctx):
@@ -86,7 +75,7 @@ async def change_volume(ctx, volume: int = 100):
     await bot.say("```py\nJust turned this knob to {}, that 'kay with y'all?```".format(str(volume)))
 
 @bot.command(name="check_vol", pass_context=True)
-async def check_volume( ctx):
+async def check_volume(ctx):
     """ Checks the volume for the servers voice channel that it's in"""
     player = players[ctx.message.server.id]
     await bot.say(player.volume*100)
@@ -105,8 +94,4 @@ async def leave_vc(ctx):
     # Pop the player from the list
     players.pop(ctx.message.server.id)
 
-
-
 bot.run(tokens.key)
-
-
